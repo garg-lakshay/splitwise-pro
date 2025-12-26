@@ -13,4 +13,71 @@ datasource db {
   provider = "postgresql"
 }
 
-model 
+enum TransactionType {
+  EXPENSE
+  SETTLEMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String?  // null for OAuth users
+
+  createdAt DateTime @default(now())
+
+  memberships GroupMember[]
+  paidTransactions Transaction[] @relation("Payer")
+  owedTransactions Transaction[] @relation("Payee")
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+
+  createdAt DateTime @default(now())
+
+  members       GroupMember[]
+  transactions  Transaction[]
+}
+
+model GroupMember {
+  id      String @id @default(cuid())
+  userId  String
+  groupId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+
+  groupId   String
+  payerId   String   // who paid
+  payeeId   String   // who owes / benefited
+
+  amount    Float
+  currency  String
+
+  type      TransactionType
+  status    TransactionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  payer User @relation("Payer", fields: [payerId], references: [id])
+  payee User @relation("Payee", fields: [payeeId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@index([groupId])
+  @@index([payerId]) // for fast querying of transactions 
+  @@index([payeeId])
+}
