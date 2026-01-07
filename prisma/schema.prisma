@@ -62,8 +62,8 @@ model Transaction {
   id        String   @id @default(cuid())
 
   groupId   String
-  payerId   String   // who paid
-  payeeId   String   // who owes / benefited
+  payerId   String   
+  payeeId   String   
 
   amount    Float
   currency  String
@@ -78,6 +78,6 @@ model Transaction {
   group Group @relation(fields: [groupId], references: [id])
 
   @@index([groupId])
-  @@index([payerId]) // for fast querying of transactions 
+  @@index([payerId]) 
   @@index([payeeId])
 }
