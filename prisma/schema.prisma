@@ -81,3 +81,17 @@ model Transaction {
   @@index([payerId]) 
   @@index([payeeId])
 }
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+
+  email     String
+  otpHash   String
+
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}

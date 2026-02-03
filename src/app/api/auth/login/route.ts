@@ -18,7 +18,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({message: "Invalid password"}, {status: 401});
         }
 
-        const token = jwt.sign({userId: user.id , email: user.email}, process.env.JWT_SECRET!)
+        const token = jwt.sign({userId: user.id , email: user.email}, process.env.JWT_SECRET!, {expiresIn: "1h"});
+        return NextResponse.json({message : "Login successful", token , user: {id: user.id, email: user.email, name: user.name}},
+             {status: 200});
+    } catch (error) {
+        return NextResponse.json({message: "Internal server error"}, {status: 500});
+
 
         
     }
